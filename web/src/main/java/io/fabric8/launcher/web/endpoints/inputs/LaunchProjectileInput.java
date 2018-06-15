@@ -116,4 +116,44 @@ public class LaunchProjectileInput implements LauncherProjectileContext {
             return 0;
         }
     }
+
+    void setGitOrganization(String gitOrganization) {
+        this.gitOrganization = gitOrganization;
+    }
+
+    void setGitRepository(String gitRepository) {
+        this.gitRepository = gitRepository;
+    }
+
+    void setMission(Mission mission) {
+        this.mission = mission;
+    }
+
+    void setRuntime(Runtime runtime) {
+        this.runtime = runtime;
+    }
+
+    void setRuntimeVersion(Version runtimeVersion) {
+        this.runtimeVersion = runtimeVersion;
+    }
+
+    void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
+    }
+
+    void setProjectVersion(String projectVersion) {
+        this.projectVersion = projectVersion;
+    }
+
+    void setStep(String step) {
+        this.step = step;
+    }
 }
