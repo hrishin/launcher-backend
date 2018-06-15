@@ -1,19 +1,18 @@
 package io.fabric8.launcher.web.endpoints.inputs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
+import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-import java.io.IOException;
-import java.util.Set;
+import io.fabric8.launcher.booster.catalog.rhoar.Mission;
+import io.fabric8.launcher.booster.catalog.rhoar.Runtime;
+import org.junit.Before;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by hrishin on 6/15/18.
@@ -22,7 +21,7 @@ public class LaunchProjectileInputTest {
 
     private Validator validator;
 
-    private  JSONObject launchProjectInputs;
+    private LaunchProjectileInput launchProjectInput;
 
     @Before
     public void init() {
@@ -31,48 +30,41 @@ public class LaunchProjectileInputTest {
     }
 
     @Test
-    public void shouldNotViolateProjectNameConstraints() throws IOException {
+    public void shouldNotViolateProjectNameConstraints() {
         // GIVEN
-        launchProjectInputs.put("projectName", "Test-_123");
+        launchProjectInput.setProjectName("Test-_123");
 
         // WHEN
-        Set<ConstraintViolation<LaunchProjectileInput>> violations = checkConstraintViolations(launchProjectInputs);
+        Set<ConstraintViolation<LaunchProjectileInput>> violations = validator.validate(launchProjectInput);
 
         // THEN
-        assertTrue(violations.isEmpty());
+        assertThat(violations).isEmpty();
     }
 
     @Test
-    public void projectNameShouldStartWithAlphabeticCharacters() throws IOException {
+    public void projectNameShouldStartWithAlphabeticCharacters() {
         // GIVEN
-        launchProjectInputs.put("projectName", "123Test");
+        launchProjectInput.setProjectName("123Test");
 
         // WHEN
-        Set<ConstraintViolation<LaunchProjectileInput>> violations = checkConstraintViolations(launchProjectInputs);
+        Set<ConstraintViolation<LaunchProjectileInput>> violations = validator.validate(launchProjectInput);
 
         // THEN
-        assertFalse(violations.isEmpty());
-        assertEquals(hasMessage(violations, LaunchProjectileInput.PROJECT_NAME_VALIDATION_MESSAGE), true);
+        assertThat(violations).isNotEmpty();
+        assertThat(hasMessage(violations, LaunchProjectileInput.PROJECT_NAME_VALIDATION_MESSAGE)).isTrue();
     }
 
     @Test
-    public void projectNameShouldEndWithAlphanumericCharacters() throws IOException {
+    public void projectNameShouldEndWithAlphanumericCharacters() {
         // GIVEN
-        launchProjectInputs.put("projectName", "123Test**");
+        launchProjectInput.setProjectName("123Test**");
 
         // WHEN
-        Set<ConstraintViolation<LaunchProjectileInput>> violations = checkConstraintViolations(launchProjectInputs);
+        Set<ConstraintViolation<LaunchProjectileInput>> violations = validator.validate(launchProjectInput);
 
         // THEN
-        assertFalse(violations.isEmpty());
-        assertEquals(hasMessage(violations, LaunchProjectileInput.PROJECT_NAME_VALIDATION_MESSAGE), true);
-    }
-
-    private void initializeLaunchInputs() {
-        launchProjectInputs = new JSONObject();
-        launchProjectInputs.put("runtime", "vertx")
-                .put("mission", "http-vertex")
-                .put("gitRepository", "http-vertex");
+        assertThat(violations).isNotEmpty();
+        assertThat(hasMessage(violations, LaunchProjectileInput.PROJECT_NAME_VALIDATION_MESSAGE)).isTrue();
     }
 
     private void initializeValidator() {
@@ -80,10 +72,11 @@ public class LaunchProjectileInputTest {
         this.validator = validatorFactory.getValidator();
     }
 
-    private Set<ConstraintViolation<LaunchProjectileInput>> checkConstraintViolations(JSONObject jsonObject) throws IOException {
-        LaunchProjectileInput projectInput = new ObjectMapper()
-                .readValue(jsonObject.toString(), LaunchProjectileInput.class);
-        return this.validator.validate(projectInput);
+    private void initializeLaunchInputs() {
+        launchProjectInput = new LaunchProjectileInput();
+        launchProjectInput.setMission(new Mission("rest-http"));
+        launchProjectInput.setRuntime(new Runtime("vert.x"));
+        launchProjectInput.setGitRepository("foo");
     }
 
     private boolean hasMessage(Set<ConstraintViolation<LaunchProjectileInput>> violations, String message) {
